@@ -36,7 +36,7 @@ public class CardService {
     public void updateCard(CardDTO cardDTO) {
         Card card = cardRepository.findByCardNumber(cardDTO.getCardNumber()).orElse(null);
         if (card != null) {
-            if (card.getMonthEnd() > cardDTO.getMonthEnd() && card.getMonthEnd() > cardDTO.getYearEnd() && !card.isBlocked()) {
+            if (card.getMonthEnd() > cardDTO.getMonthEnd() && card.getMonthEnd() > cardDTO.getYearEnd()) {
                 card.setMonthEnd(cardDTO.getMonthEnd());
                 card.setYearEnd(cardDTO.getYearEnd());
                 cardRepository.save(card);
@@ -68,7 +68,7 @@ public class CardService {
         for (CardCloseRequest cardCloseRequest : cardCloseRequests) {
             Card card = cardRepository.findByCardNumber(cardCloseRequest.getCardNumber()).orElse(null);
             if (card != null) {
-                card.setBlocked(true);
+                card.setStatus("Blocked");
                 cardRepository.save(card);
             }
         }

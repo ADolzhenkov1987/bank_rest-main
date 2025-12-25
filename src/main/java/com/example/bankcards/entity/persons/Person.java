@@ -1,7 +1,6 @@
-package com.example.bankcards.entity.users;
+package com.example.bankcards.entity.persons;
 
 import com.example.bankcards.entity.cards.Card;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -12,7 +11,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
-public class User {
+public class Person {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,15 +22,13 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Size(min = 8, max = 16)
     @Column(name = "password", nullable = false)
-    @NotBlank
-    @Size(max = 128)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @OneToOne(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Role role;
+    @Column(name = "role")
+    private String role;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
     private List<Card> card;
 }

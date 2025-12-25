@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/cards")
 public class CardController {
@@ -51,7 +51,7 @@ public class CardController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping("/transaction")
     public ResponseEntity<?> setTransaction(@RequestBody TransactionDTO transactionDTO) {
         cardService.setTransaction(transactionDTO);
         return new ResponseEntity<>(HttpStatus.OK);

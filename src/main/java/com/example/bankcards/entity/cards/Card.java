@@ -1,6 +1,6 @@
 package com.example.bankcards.entity.cards;
 
-import com.example.bankcards.entity.users.User;
+import com.example.bankcards.entity.persons.Person;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
@@ -20,8 +20,8 @@ public class Card {
     @Column(name = "year_end", nullable = false)
     private int yearEnd;
 
-    @Column(name = "is_blocked")
-    private boolean isBlocked;
+    @Column(name = "status")
+    private String status;
 
     @Column(name = "balance")
     private double balance;
@@ -29,5 +29,5 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private Person person;
 }

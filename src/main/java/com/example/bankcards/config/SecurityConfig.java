@@ -1,60 +1,59 @@
 package com.example.bankcards.config;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.example.bankcards.entity.users.Role;
-import com.example.bankcards.entity.users.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.Optional;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig {
-    public static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
+    public final JWTFilter jwtFilter;
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return PASSWORD_ENCODER;
+        return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    UserDetailsService userDetailsService() {
-//        return email -> {
-//            log.debug("Authenticating '{}'", email);
-//            Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
-//            return new AuthUser(optionalUser.orElseThrow(
-//                    () -> new UsernameNotFoundException("User '" + email + "' was not found")));
-//        };
-    }
-
-    //https://stackoverflow.com/a/76538979/548473
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.securityMatcher("/api/**").authorizeHttpRequests(authz ->
-//                        authz.requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
-//                                .requestMatchers(HttpMethod.POST, "/api/profile").anonymous()
-//                                .requestMatchers("/", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-//                                .requestMatchers("/api/**").authenticated())
-//                .httpBasic(withDefaults())
-//                .sessionManagement(smc -> smc.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .csrf(AbstractHttpConfigurer::disable);
+
+        http.securityMatcher("/api/admin/users/**").authorizeHttpRequests(authz ->
+                        authz.requestMatchers("/api/admin/users/**").hasRole("ADMIN")
+                                .requestMatchers("/", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                                .requestMatchers("/api/admin/users/login").authenticated())
+                .httpBasic(withDefaults())
+                .sessionManagement(smc -> smc.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
+
+        return new ProviderManager(authenticationProvider);
     }
 }

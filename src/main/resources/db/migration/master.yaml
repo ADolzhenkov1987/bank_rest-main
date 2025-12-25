@@ -1,0 +1,93 @@
+databaseChangeLog:
+  - changeSet:
+      id: createTable
+      author: doljenkov
+      changes:
+        - createTable:
+            tableName: users
+            remarks: Пользователи
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: user_pk
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  remarks: Имя пользователя
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: name_uq
+                    nullable: false
+              - column:
+                  name: password
+                  remarks: Пароль пользователя
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  remarks: Роль пользователя
+                  type: varchar(16)
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+        - createTable:
+           tableName: cards
+           remarks: Банковские карты
+           columns:
+             - column:
+                 name: card_number
+                 type: bigint
+                 autoIncrement: true
+                 constraints:
+                   primaryKey: true
+                   primaryKeyName: card_number_pk
+                   nullable: false
+             - column:
+                 name: month_end
+                 type: integer
+                 remarks: Месяц окончания действия карты
+             - column:
+                 name: year_end
+                 type: integer
+                 remarks: Год окончания действия карты
+             - column:
+                 name: balance
+                 type: float
+                 remarks: Баланс карты
+             - column:
+                 name: status
+                 type: varchar(16)
+                 remarks: Статус карты
+             - column:
+                 name: user_id
+                 type: integer
+                 remarks: Ссылка на пользователя
+                 constraints:
+                   nullable: false
+                   foreignKeyName: fk_user_id
+                   references: users(id)
+  - changeSet:
+      id: insertTable
+      author: doljenkov
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: ADMIN
+              - column:
+                  name: password
+                  value: '$2a$04$pvOUeOodk7XkWZhNL02An.pQWd3lImwy0lV0WRAA4aDgpTWxx0Hoa'
+              - column:
+                  name: role
+                  value: ROLE_ADMIN
